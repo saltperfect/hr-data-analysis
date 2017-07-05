@@ -1,0 +1,169 @@
+```{r}
+df <- read.csv('HR_comma_sep.csv')
+str(df)
+
+```
+
+```{r}
+library('ggplot2')
+ggplot(aes(x=satisfaction_level, y = last_evaluation), data = df)+
+  geom_point(alpha = 1/20)+
+  scale_x_continuous(breaks = seq(0,1,0.05))+
+  scale_y_continuous(breaks = seq(0,1,0.05))
+  
+  
+```
+Too many people not satisfied with jobs but still working at high level just for the money.
+```{r}
+library('ggplot2')
+ggplot(aes(x=satisfaction_level, y = last_evaluation, color = salary), data = df)+
+  geom_point(alpha = 1/5)
+
+```
+Found a special spot
+
+```{r}
+ggplot(aes(x=satisfaction_level, y = last_evaluation, color = left.bucket), data = df)+
+  geom_point(alpha = 1/5)
+
+```
+
+
+```{r}
+library('dplyr')
+df_special <- subset(df, satisfaction_level < 0.125 & last_evaluation > 0.75)
+df_special <- df_special %>% group_by(sales) %>% mutate(count = n())
+df_special$sales <- factor(df_special$sales, levels = c('sales', 'technical', 'support','IT','accounting','hr','product_mng','marketing','RandD','managment'))
+
+ggplot(aes(sales), data = df_special)+
+  geom_bar(aes(fill = salary))+
+  coord_flip()+
+  title(main = 'unsatisfied_employees')
+```
+Where do these unsatisfied employees work?
+```{r}
+df_special$average_monthly_hour.bucket <- cut(df_special$average_montly_hours, breaks = seq(130,310,30))
+library('graphics')
+ggplot(aes(sales), data = df_special)+
+  geom_bar(aes(fill = average_monthly_hour.bucket))+
+  coord_flip()+
+  title(main = 'unsatisfied_employees')
+  
+  
+
+```
+How much do they earn?
+```{r}
+df$time_spend_company.bucket <- as.factor(df$time_spend_company)
+df$number_project.bucket <- as.factor(df$number_project)
+df$left.bucket <- as.factor(df$left)
+df$satisfaction_level.bucket <- cut(df$satisfaction_level, breaks = seq(0,1,0.1))
+df$last_evaluation.bucket <- cut(df$last_evaluation, breaks = seq(0,1,0.1))
+```
+adding some column
+```{r}
+ggplot(aes(x=time_spend_company.bucket, y= average_montly_hours), data = df)+
+  geom_boxplot()
+
+```
+How much time has a person spend vs. his working hours.
+
+```{r}
+df_special$time_spend_company.bucket <- as.factor(df_special$time_spend_company)
+ggplot(aes(x=time_spend_company.bucket, y= average_montly_hours), data = df_special)+
+  geom_boxplot()
+
+```
+How much time has a person spend vs. his working hours? special category.
+```{r}
+ggplot(aes(x=average_montly_hours, y=last_evaluation), data = df)+
+  geom_point(alpha = 1/10)
+
+```
+average_montly_hours vs. last_evaluation
+
+```{r}
+ggplot(aes(x=average_montly_hours, y=satisfaction_level), data = df)+
+  geom_point(alpha = 1/10)
+```
+average_montly_hours vs. satisfaction_level
+conclude:- Some employees are exploited.
+
+```{r}
+ggplot(aes(x=time_spend_company.bucket, y=satisfaction_level), data = df)+
+  geom_boxplot()
+
+```
+time_spend_company vs. satisfaction_level
+```{r}
+ggplot(aes(x=time_spend_company.bucket, y=last_evaluation), data = df)+
+  geom_boxplot()
+
+```
+time_spent_company vs evaluation. Checking whether stay in the company affects evaluation
+
+```{r}
+ggplot(aes(x=number_project.bucket, y= average_montly_hours), data =df)+
+  geom_boxplot()
+```
+checking whether no. of projects affect average_montly_hours
+```{r}
+ggplot(aes(x=number_project.bucket, y= satisfaction_level), data =df)+
+  geom_boxplot()
+
+```
+checking weather number of projects effects satisfaction level.
+```{r}
+ggplot(aes(x=sales, y = average_montly_hours), data =df)+
+  geom_violin(fill = 'pink')
+```
+How much work does a person do in each  category?
+```{r}
+sales_summary <- df %>% group_by(sales) %>%
+  summarise(mean.satisfation_level = mean(satisfaction_level),
+            mean.last_evaluation = mean(last_evaluation),
+            median.average_montly_hours = median(average_montly_hours),
+            mean.time_spend_company = mean(time_spend_company),
+            mean.left = mean(left),
+            n = n()) %>% 
+  arrange(sales)
+```
+created a dataset grouped by sales.
+```{r}
+satisfation_summary <- df %>% group_by(satisfaction_level.bucket) %>%
+  summarise(mean.satisfation_level = mean(satisfaction_level),
+            mean.last_evaluation = mean(last_evaluation),
+            median.average_montly_hours = median(average_montly_hours),
+            mean.time_spend_company = mean(time_spend_company),
+            mean.left = mean(left),
+            n = n()) %>% 
+  arrange(satisfaction_level.bucket)
+
+```
+```{r}
+evaluation_summary <- df %>% group_by(last_evaluation.bucket) %>%
+  summarise(mean.satisfation_level = mean(satisfaction_level),
+            mean.last_evaluation = mean(last_evaluation),
+            median.average_montly_hours = median(average_montly_hours),
+            mean.time_spend_company = mean(time_spend_company),
+            mean.left = mean(left),
+            n = n()) %>% 
+  arrange(last_evaluation.bucket)
+```
+```{r}
+salary_summary <- df %>% group_by(salary) %>%
+  summarise(mean.satisfation_level = mean(satisfaction_level),
+            mean.last_evaluation = mean(last_evaluation),
+            median.average_montly_hours = median(average_montly_hours),
+            mean.time_spend_company = mean(time_spend_company),
+            mean.left = mean(left),
+            n = n()) %>% 
+  arrange(salary)
+
+```
+```{r}
+
+
+```
+
+
